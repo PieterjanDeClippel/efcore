@@ -127,7 +127,43 @@ public static class RelationalForeignKeyExtensions
 
         var referentialAction = RelationalModel.ToReferentialAction(foreignKey.DeleteBehavior);
         var duplicateReferentialAction = RelationalModel.ToReferentialAction(duplicateForeignKey.DeleteBehavior);
-        return referentialAction != duplicateReferentialAction ? shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateForeignKeyDeleteBehaviorMismatch( foreignKey.Properties.Format(), foreignKey.DeclaringEntityType.DisplayName(), duplicateForeignKey.Properties.Format(), duplicateForeignKey.DeclaringEntityType.DisplayName(), foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(), foreignKey.GetConstraintName(storeObject, principalTable.Value), referentialAction, duplicateReferentialAction)) : false : foreignKey.IsExcludedFromMigrations() == duplicateForeignKey.IsExcludedFromMigrations() || (shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch( foreignKey.Properties.Format(), foreignKey.DeclaringEntityType.DisplayName(), duplicateForeignKey.Properties.Format(), duplicateForeignKey.DeclaringEntityType.DisplayName(), foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(), foreignKey.GetConstraintName(storeObject, principalTable.Value))) : false);
+        return referentialAction != duplicateReferentialAction
+            ? shouldThrow
+                ? throw new InvalidOperationException(
+                    RelationalStrings.DuplicateForeignKeyDeleteBehaviorMismatch(
+                        foreignKey.Properties.Format(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        duplicateForeignKey.Properties.Format(),
+                        duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                        referentialAction,
+                        duplicateReferentialAction))
+                : false
+            : foreignKey.IsExcludedFromMigrations() != duplicateForeignKey.IsExcludedFromMigrations()
+                ? shouldThrow
+                    ? throw new InvalidOperationException(
+                        RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch(
+                            foreignKey.Properties.Format(),
+                            foreignKey.DeclaringEntityType.DisplayName(),
+                            duplicateForeignKey.Properties.Format(),
+                            duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(storeObject, principalTable.Value)))
+                    : false
+                : foreignKey.GetDeferrability() == duplicateForeignKey.GetDeferrability()
+                    || (shouldThrow
+                        ? throw new InvalidOperationException(
+                            RelationalStrings.DuplicateForeignKeyDeferrabilityMismatch(
+                                foreignKey.Properties.Format(),
+                                foreignKey.DeclaringEntityType.DisplayName(),
+                                duplicateForeignKey.Properties.Format(),
+                                duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                                foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                                foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                                foreignKey.GetDeferrability(),
+                                duplicateForeignKey.GetDeferrability()))
+                        : false);
     }
 
     /// <summary>
